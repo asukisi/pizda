@@ -1,6 +1,7 @@
 using Npgsql;
 using System.Data;
-using System.Xml.Linq;
+using System;
+using QRCoder;
 
 namespace Repair
 {
@@ -13,25 +14,22 @@ namespace Repair
 
         private void ConnectButton_Click(object sender, EventArgs e)
         {
-
             string connectionString = "Host=localhost;Port=5432;Database=test;Username=postgres;Password=3232;";
             string query = "SELECT * FROM public.\"user\"";
             try
             {
                 using (var connection = new NpgsqlConnection(connectionString))
                 {
+                    connection.Open();
+
+                    // Используем DataAdapter для получения данных
+                    using (var adapter = new NpgsqlDataAdapter(query, connection))
                     {
-                        connection.Open();
+                        DataTable dataTable = new DataTable();
+                        adapter.Fill(dataTable); // Загружаем данные в DataTable
 
-                        // Используем DataAdapter для получения данных
-                        using (var adapter = new NpgsqlDataAdapter(query, connection))
-                        {
-                            DataTable dataTable = new DataTable();
-                            adapter.Fill(dataTable); // Загружаем данные в DataTable
-
-                            // Привязываем DataTable к DataGridView
-                            dataGridView1.DataSource = dataTable;
-                        }
+                        // Привязываем DataTable к DataGridView
+                        dataGridView1.DataSource = dataTable;
                     }
                 }
             }
@@ -41,12 +39,8 @@ namespace Repair
             }
         }
 
-
-
-
         private void button3_Click_1(object sender, EventArgs e)
         {
-            // Получение данных из текстовых полей
             string newName = textBox1.Text;
             string newStatus = comboBox1.SelectedItem?.ToString();
 
@@ -68,10 +62,7 @@ namespace Repair
                 return;
             }
 
-            // Строка подключения
             string connectionString = "Host=localhost;Port=5432;Database=test;Username=postgres;Password=3232;";
-
-            // SQL-запрос для обновления данных
             string query = "UPDATE public.\"user\" SET name = @name, status = @status WHERE id = @id";
 
             try
@@ -80,15 +71,12 @@ namespace Repair
                 {
                     connection.Open();
 
-                    // Используем NpgsqlCommand для выполнения запроса
                     using (var command = new NpgsqlCommand(query, connection))
                     {
-                        // Добавляем параметры для предотвращения SQL-инъекций
                         command.Parameters.AddWithValue("@name", newName);
                         command.Parameters.AddWithValue("@status", newStatus);
                         command.Parameters.AddWithValue("@id", id);
 
-                        // Выполняем команду
                         int rowsAffected = command.ExecuteNonQuery();
 
                         if (rowsAffected > 0)
@@ -96,7 +84,7 @@ namespace Repair
                             MessageBox.Show($"Пользователь с ID {id} успешно обновлен: Имя - {newName}, Статус - {newStatus}!");
                             textBox1.Clear();
                             textBox2.Clear();
-                            comboBox1.SelectedIndex = -1; // Сбрасываем выбор в ComboBox
+                            comboBox1.SelectedIndex = -1;
                         }
                         else
                         {
@@ -111,28 +99,17 @@ namespace Repair
             }
         }
 
-
         private void button2_Click_1(object sender, EventArgs e)
         {
             string connectionString = "Host=localhost;Port=5432;Database=test;Username=postgres;Password=3232;";
-
-            // SQL-запрос для удаления
             string query = "DELETE FROM public.\"user\"";
-
 
             using (var connection = new NpgsqlConnection(connectionString))
             {
                 connection.Open();
-
-                // Используем NpgsqlCommand для выполнения запроса
                 using (var command = new NpgsqlCommand(query, connection))
                 {
-                    // Добавляем параметры для предотвращения SQL-инъекций
                     command.ExecuteNonQuery();
-
-
-
-
                 }
             }
         }
@@ -140,8 +117,7 @@ namespace Repair
         private void button1_Click_1(object sender, EventArgs e)
         {
             string name = textBox1.Text;
-            int id;
-            if (!int.TryParse(textBox2.Text, out id))
+            if (!int.TryParse(textBox2.Text, out int id))
             {
                 MessageBox.Show("Введите корректный ID.");
                 return;
@@ -160,12 +136,8 @@ namespace Repair
                 return;
             }
 
-            // Получаем текущее время
             DateTime currentTime = DateTime.Now;
-
             string connectionString = "Host=localhost;Port=5432;Database=test;Username=postgres;Password=3232;";
-
-            // Обновленный SQL-запрос
             string query = "INSERT INTO public.\"user\" (id, name, status, created_at) VALUES (@id, @name, @status, @created_at)";
 
             try
@@ -203,25 +175,19 @@ namespace Repair
             }
         }
 
-
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            // Получение ID из текстового поля
             if (!int.TryParse(textBox2.Text, out int id))
             {
                 MessageBox.Show("Введите корректный ID.");
                 return;
             }
 
-            // Строка подключения
             string connectionString = "Host=localhost;Port=5432;Database=test;Username=postgres;Password=3232;";
-
-            // SQL-запрос для поиска пользователя по ID
             string query = "SELECT * FROM public.\"user\" WHERE id = @id";
 
             try
@@ -230,20 +196,14 @@ namespace Repair
                 {
                     connection.Open();
 
-                    // Используем DataAdapter для получения данных
                     using (var adapter = new NpgsqlDataAdapter(query, connection))
                     {
-                        
                         adapter.SelectCommand.Parameters.AddWithValue("@id", id);
-
-                        // Создаем DataTable для хранения результата
                         DataTable dataTable = new DataTable();
                         adapter.Fill(dataTable);
 
-                        
                         if (dataTable.Rows.Count > 0)
                         {
-                            // Привязываем DataTable к DataGridView
                             dataGridView1.DataSource = dataTable;
                         }
                         else
@@ -261,7 +221,6 @@ namespace Repair
 
         private void SearchByComboBox_Click(object sender, EventArgs e)
         {
-            // Получение выбранного значения из ComboBox
             string selectedStatus = comboBox1.SelectedItem?.ToString();
 
             if (string.IsNullOrWhiteSpace(selectedStatus))
@@ -270,10 +229,7 @@ namespace Repair
                 return;
             }
 
-            // Строка подключения
             string connectionString = "Host=localhost;Port=5432;Database=test;Username=postgres;Password=3232;";
-
-            // SQL-запрос для поиска по статусу
             string query = "SELECT * FROM public.\"user\" WHERE status = @status";
 
             try
@@ -282,20 +238,14 @@ namespace Repair
                 {
                     connection.Open();
 
-                    // Используем DataAdapter для получения данных
                     using (var adapter = new NpgsqlDataAdapter(query, connection))
                     {
-                        // Добавляем параметр status в запрос
                         adapter.SelectCommand.Parameters.AddWithValue("@status", selectedStatus);
-
-                        // Создаем DataTable для хранения результата
                         DataTable dataTable = new DataTable();
                         adapter.Fill(dataTable);
 
-                        // Проверяем, есть ли результат
                         if (dataTable.Rows.Count > 0)
                         {
-                            // Привязываем DataTable к DataGridView
                             dataGridView1.DataSource = dataTable;
                         }
                         else
@@ -311,5 +261,110 @@ namespace Repair
             }
         }
 
+        private void GetCompletedTasks_Click(object sender, EventArgs e)
+        {
+            string connectionString = "Host=localhost;Port=5432;Database=test;Username=postgres;Password=3232;";
+            DateTime startDate = dateTimePickerStart.Value;
+            DateTime endDate = dateTimePickerEnd.Value;
+
+            string query = @"SELECT COUNT(*) AS completed_tasks
+                             FROM public.task
+                             WHERE completion_time BETWEEN @start_date AND @end_date 
+                             AND status = 'completed'";
+
+            try
+            {
+                using (var connection = new NpgsqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    using (var command = new NpgsqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@start_date", startDate);
+                        command.Parameters.AddWithValue("@end_date", endDate);
+
+                        int completedTasks = Convert.ToInt32(command.ExecuteScalar());
+                        MessageBox.Show($"Количество выполненных задач за указанный период: {completedTasks}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка: {ex.Message}");
+            }
+        }
+
+        private void GetAverageCompletionTime_Click(object sender, EventArgs e)
+        {
+            string connectionString = "Host=localhost;Port=5432;Database=test;Username=postgres;Password=3232;";
+            DateTime startDate = dateTimePickerStart.Value;
+            DateTime endDate = dateTimePickerEnd.Value;
+
+            string query = @"SELECT AVG(EXTRACT(EPOCH FROM (completion_time - start_time))) AS average_time_seconds
+                             FROM public.task
+                             WHERE completion_time BETWEEN @start_date AND @end_date
+                             AND status = 'completed'";
+
+            try
+            {
+                using (var connection = new NpgsqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    using (var command = new NpgsqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@start_date", startDate);
+                        command.Parameters.AddWithValue("@end_date", endDate);
+
+                        object result = command.ExecuteScalar();
+                        if (result != DBNull.Value)
+                        {
+                            double avgTimeSeconds = Convert.ToDouble(result);
+                            TimeSpan averageTime = TimeSpan.FromSeconds(avgTimeSeconds);
+                            MessageBox.Show($"Среднее время выполнения задачи: {averageTime}");
+                        }
+                        else
+                        {
+                            MessageBox.Show("Нет данных для расчета среднего времени.");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка: {ex.Message}");
+            }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button4fd_Click(object sender, EventArgs e)
+        {
+            string url = "https://t.me/asukisi";
+
+
+            using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
+            {
+                QRCodeData qrCodeData = qrGenerator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
+                QRCode qrCode = new QRCode(qrCodeData);
+
+
+                Bitmap qrCodeImage = qrCode.GetGraphic(20);
+
+
+                Bitmap resizedImage = new Bitmap(qrCodeImage, new Size(200, 200));
+
+
+                pictureBox1.Image = resizedImage;
+            }
+        }
+
+        private void buttonDownloadPdf_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

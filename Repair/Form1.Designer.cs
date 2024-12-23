@@ -45,7 +45,13 @@
             SearchButton = new Button();
             SearchByComboBox = new Button();
             label5 = new Label();
+            dateTimePickerStart = new DateTimePicker();
+            dateTimePickerEnd = new DateTimePicker();
+            pictureBox1 = new PictureBox();
+            button4fd = new Button();
+            buttonDownloadPdf = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
             // dataGridView1
@@ -199,11 +205,58 @@
             label5.TabIndex = 15;
             label5.Text = "ООО \"Проект сервис\"";
             // 
+            // dateTimePickerStart
+            // 
+            dateTimePickerStart.Location = new Point(253, 537);
+            dateTimePickerStart.Name = "dateTimePickerStart";
+            dateTimePickerStart.Size = new Size(200, 23);
+            dateTimePickerStart.TabIndex = 16;
+            // 
+            // dateTimePickerEnd
+            // 
+            dateTimePickerEnd.Location = new Point(481, 537);
+            dateTimePickerEnd.Name = "dateTimePickerEnd";
+            dateTimePickerEnd.Size = new Size(200, 23);
+            dateTimePickerEnd.TabIndex = 17;
+            // 
+            // pictureBox1
+            // 
+            pictureBox1.Location = new Point(520, 288);
+            pictureBox1.Name = "pictureBox1";
+            pictureBox1.Size = new Size(268, 200);
+            pictureBox1.TabIndex = 18;
+            pictureBox1.TabStop = false;
+            // 
+            // button4fd
+            // 
+            button4fd.Location = new Point(12, 271);
+            button4fd.Name = "button4fd";
+            button4fd.Size = new Size(104, 23);
+            button4fd.TabIndex = 19;
+            button4fd.Text = "показать qr code";
+            button4fd.UseVisualStyleBackColor = true;
+            button4fd.Click += button4fd_Click;
+            // 
+            // buttonDownloadPdf
+            // 
+            buttonDownloadPdf.Location = new Point(12, 329);
+            buttonDownloadPdf.Name = "buttonDownloadPdf";
+            buttonDownloadPdf.Size = new Size(104, 23);
+            buttonDownloadPdf.TabIndex = 20;
+            buttonDownloadPdf.Text = "скачать pdf";
+            buttonDownloadPdf.UseVisualStyleBackColor = true;
+            buttonDownloadPdf.Click += buttonDownloadPdf_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 572);
+            Controls.Add(buttonDownloadPdf);
+            Controls.Add(button4fd);
+            Controls.Add(pictureBox1);
+            Controls.Add(dateTimePickerEnd);
+            Controls.Add(dateTimePickerStart);
             Controls.Add(label5);
             Controls.Add(SearchByComboBox);
             Controls.Add(SearchButton);
@@ -222,7 +275,9 @@
             Controls.Add(dataGridView1);
             Name = "Form1";
             Text = "Form1";
+            Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -246,5 +301,10 @@
         private Button SearchButton;
         private Button SearchByComboBox;
         private Label label5;
+        private DateTimePicker dateTimePickerStart;
+        private DateTimePicker dateTimePickerEnd;
+        private PictureBox pictureBox1;
+        private Button button4fd;
+        private Button buttonDownloadPdf;
     }
 }
